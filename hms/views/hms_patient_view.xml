@@ -1,0 +1,80 @@
+<odoo>
+    <data>
+        <record id="patients_tree_view" model="ir.ui.view">
+            <field name="name">Patient Tree View</field>
+            <field name="model">hms.patient</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="first_name"/>
+                    <field name="last_name"/>
+                    <field name="birth_date"/>
+                    <field name="blood_type"/>
+                    <field name="department_id"/>
+
+                </tree>
+            </field>
+        </record>
+        <record id="patients_form_view" model="ir.ui.view">
+            <field name="name">Patient Form View</field>
+            <field name="model">hms.patient</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="set_patient_status_good" statuses="u" type="object" string="Good"/>
+                        <button name="set_patient_status_fair" statuses="u" type="object" string="Fair"/>
+                        <button name="set_patient_status_serious" statuses="u" type="object" string="Serious"/>
+                        <field name="status" widget="statusbar" statusbar_visible="Undetermined,Good,Fair"/>
+                    </header>
+                    <sheet>
+                        <group>
+
+                            <group string="Basic Info">
+                                <field name="first_name"/>
+                                <field name="last_name"/>
+                                <field name="birth_date"/>
+                                <field name="age"/>
+                                <field name="email"/>
+                                <field name="image"/>
+
+                            </group>
+                            <group string="Medical Info">
+                                <field name="blood_type"/>
+                                <field name="pcr"/>
+                                <field name="cr_ratio" attrs="{'required': [('pcr','=',True)]}"/>
+                                <field name="department_id" domain="[('is_opened', '=', True)]"/>
+                                <field name="department_capacity"/>
+                                <!--                             there is one bug here when create new doctor from tags input the new doctor object does not belongs to the selected department-->
+                                <!--                            context="{'default_department_id': department_id}" -->
+                                <field name="doctor_ids" widget="many2many_tags"
+                                       attrs="{'readonly': [('department_id','=', False)]}"
+                                       domain="[('department_ids','=', department_id)]"
+                                       groups="hms.hms_manager_group"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="History">
+                                <field name="history" attrs="{'invisible':[('age','&lt;=', 50)]}"/>
+                            </page>
+                            <page string="Address">
+                                <field name="address"/>
+                            </page>
+                            <page string="Status History">
+                                <field name="history_ids"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="patients_action" model="ir.actions.act_window">
+            <field name="name">Patients</field>
+            <field name="res_model">hms.patient</field>
+        </record>
+
+        <menuitem id="hms_root" name="HMS"/>
+        <menuitem id="hms_patient_menu" name="Patients" parent="hms_root" action="patients_action"/>
+
+    </data>
+</odoo>
